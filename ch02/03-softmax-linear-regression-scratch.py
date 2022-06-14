@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 import torch
 from d2l import torch as d2l
 
-sys.path.append('D:\\pythonspace\\d2l\\d2lutil')  # 加入路径，添加目录
-import common
+
+from d2lutil import common
+
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 

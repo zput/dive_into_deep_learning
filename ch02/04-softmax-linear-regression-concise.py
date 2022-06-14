@@ -4,8 +4,10 @@ import torch
 from d2l import torch as d2l
 from torch import nn
 
-sys.path.append('D:\\pythonspace\\d2l\\d2lutil')  # 加入路径，添加目录
-import common
+# sys.path.append('D:\\pythonspace\\d2l\\d2lutil')  # 加入路径，添加目录
+# sys.path.append('/Users/edz/code/fortrade/dive_into_deep_learning/d2lutil')  # 加入路径，添加目录
+
+from d2lutil import common
 
 ## 读取小批量数据
 batch_size = 256

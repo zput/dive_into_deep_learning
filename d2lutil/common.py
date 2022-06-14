@@ -22,6 +22,13 @@ def semilogy(x_vals, y_vals, x_label, y_label, x2_vals=None, y2_vals=None,
 def hello():
     print("semilogy_HELLO")
 
+
+def get_path() -> str:
+    import os
+    dotenv_path = os.path.dirname(os.path.abspath(__file__)) + '/data_source'
+    print(dotenv_path)
+    return dotenv_path
+
 # 李沐课件中采用的是远程获取的方式，因为公司网络的限制，远程获取会报错。
 # 运行远程获取的方式，c:\users\lwx898760\miniconda3\envs\d2l\lib\site-packages\torchvision\datasets\mnist.py会报错
 # 这里采用本地下载的方式先将数据集下载到本地，放在D://d2l-data//下面
@@ -30,31 +37,32 @@ def hello():
 # http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz
 # http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-labels-idx1-ubyte.gz
 def load_fashion_mnist(batch_size):
-    extract_archive('D://d2l-data//t10k-images-idx3-ubyte.gz', 'D://d2l-data//FashionMNIST//raw', False)
-    extract_archive('D://d2l-data//train-images-idx3-ubyte.gz', 'D://d2l-data//FashionMNIST//raw', False)
-    extract_archive('D://d2l-data//t10k-labels-idx1-ubyte.gz', 'D://d2l-data//FashionMNIST//raw', False)
-    extract_archive('D://d2l-data//train-labels-idx1-ubyte.gz', 'D://d2l-data//FashionMNIST//raw', False)
+    path_head = get_path()
+    extract_archive(path_head + '/t10k-images-idx3-ubyte.gz',  path_head + '/FashionMNIST/raw', False)
+    extract_archive(path_head + '/train-images-idx3-ubyte.gz', path_head + '/FashionMNIST/raw', False)
+    extract_archive(path_head + '/t10k-labels-idx1-ubyte.gz',  path_head + '/FashionMNIST/raw', False)
+    extract_archive(path_head + '/train-labels-idx1-ubyte.gz', path_head + '/FashionMNIST/raw', False)
 
     training_set = (
-        read_image_file('D://d2l-data//FashionMNIST//raw//train-images-idx3-ubyte'),
-        read_label_file('D://d2l-data//FashionMNIST//raw//train-labels-idx1-ubyte')
+        read_image_file(path_head + '/FashionMNIST/raw/train-images-idx3-ubyte'),
+        read_label_file(path_head + '/FashionMNIST/raw/train-labels-idx1-ubyte')
     )
     test_set = (
-        read_image_file('D://d2l-data//FashionMNIST//raw//t10k-images-idx3-ubyte'),
-        read_label_file('D://d2l-data//FashionMNIST//raw//t10k-labels-idx1-ubyte')
+        read_image_file(path_head + '/FashionMNIST/raw/t10k-images-idx3-ubyte'),
+        read_label_file(path_head + '/FashionMNIST/raw/t10k-labels-idx1-ubyte')
     )
-    with open('D://d2l-data//FashionMNIST//processed//training.pt', 'wb') as f:
+    with open(path_head + '/FashionMNIST/processed/training.pt', 'wb') as f:
         torch.save(training_set, f)
-    with open('D://d2l-data//FashionMNIST//processed//test.pt', 'wb') as f:
+    with open(path_head + '/FashionMNIST/processed/test.pt', 'wb') as f:
         torch.save(test_set, f)
     print('Done!')
 
-    #train_data, train_targets = torch.load('D://d2l-data//FashionMNIST//processed//training.pt')
-    #test_data, test_targets = torch.load('D://d2l-data//FashionMNIST//processed//test.pt')
+    # train_data, train_targets = torch.load('D://d2l-data//FashionMNIST//processed//training.pt')
+    # test_data, test_targets = torch.load('D://d2l-data//FashionMNIST//processed//test.pt')
 
-    mnist_train = torchvision.datasets.FashionMNIST(root="D:/d2l-data/", train=True, transform=transforms.ToTensor(),
+    mnist_train = torchvision.datasets.FashionMNIST(root=path_head + "/", train=True, transform=transforms.ToTensor(),
                                                     download=False)
-    mnist_test = torchvision.datasets.FashionMNIST(root="D:/d2l-data/", train=False, transform=transforms.ToTensor(),
+    mnist_test = torchvision.datasets.FashionMNIST(root=path_head + "/", train=False, transform=transforms.ToTensor(),
                                                    download=False)
 
     # 这里有个坑 如果线程数num_workers设置大于0会报错  An attempt has been made to start a new process before the current process has finished its bootstrapping
