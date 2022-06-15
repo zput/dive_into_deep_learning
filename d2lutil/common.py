@@ -29,9 +29,7 @@ def get_path() -> str:
     print(dotenv_path)
     return dotenv_path
 
-# 李沐课件中采用的是远程获取的方式，因为公司网络的限制，远程获取会报错。
-# 运行远程获取的方式，c:\users\lwx898760\miniconda3\envs\d2l\lib\site-packages\torchvision\datasets\mnist.py会报错
-# 这里采用本地下载的方式先将数据集下载到本地，放在D://d2l-data//下面
+# 采用本地下载的方式先将数据集下载到本地
 # http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-images-idx3-ubyte.gz
 # http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/train-images-idx3-ubyte.gz
 # http://fashion-mnist.s3-website.eu-central-1.amazonaws.com/t10k-labels-idx1-ubyte.gz
@@ -70,7 +68,7 @@ def load_fashion_mnist(batch_size):
         num_workers = 0  # 0表示不用额外的进程来加速读取数据
     else:
         num_workers = 0
-    # 这里有个坑 如果线程数num_workers设置大于0会报错  An attempt has been made to start a new process before the current process has finished its bootstrapping
+
     train_iter = data.DataLoader(mnist_train, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     test_iter = data.DataLoader(mnist_test, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
