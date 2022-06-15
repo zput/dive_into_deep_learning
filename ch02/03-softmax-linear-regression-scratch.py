@@ -11,8 +11,8 @@ from d2lutil import common
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 ## 读取小批量数据
-# batch_size = 256
-batch_size = 2
+batch_size = 256
+# batch_size = 2
 train_iter, test_iter = common.load_fashion_mnist(batch_size)
 print(len(train_iter))  # train_iter的长度是235；说明数据被分成了234组大小为256的数据加上最后一组大小不足256的数据
 print('11111111')
@@ -42,14 +42,15 @@ def show_fashion_mnist(images, labels):
 
 #展示部分训练数据
 train_data, train_targets = iter(train_iter).next()
-# show_fashion_mnist(train_data[0:10], get_fashion_mnist_labels(train_targets[0:10]))
-print(train_data, train_targets, len(train_data), len(train_targets))
-show_fashion_mnist(train_data[:], get_fashion_mnist_labels(train_targets[:]))
+show_fashion_mnist(train_data[0:10], get_fashion_mnist_labels(train_targets[0:10]))
+# print(train_data, train_targets, len(train_data), len(train_targets))
+# show_fashion_mnist(train_data[:], get_fashion_mnist_labels(train_targets[:]))
 
 # 初始化模型参数
 num_inputs = 784
 num_outputs = 10
 
+## W, b为全局变量
 W = torch.normal(0, 0.01, size=(num_inputs, num_outputs), requires_grad=True)
 b = torch.zeros(num_outputs, requires_grad=True)
 
@@ -78,7 +79,7 @@ y_hat.gather(1, y.view(-1, 1))
 
 
 def cross_entropy(y_hat, y):
-    print("=================> \n y_hat:{}; \n y:{} \n =======================< \n".format(y_hat, y))
+    # print("=================> \n y_hat:{}; \n y:{} \n =======================< \n".format(y_hat, y))
     return - torch.log(y_hat.gather(1, y.view(-1, 1)))
 
 
@@ -131,9 +132,11 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
 # 训练模型
 train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs, batch_size, [W, b], lr)
 
+# 测试一下
 # 预测模型
 X, y = iter(test_iter).next()
 true_labels = get_fashion_mnist_labels(y.numpy())
 pred_labels = get_fashion_mnist_labels(net(X).argmax(dim=1).numpy())
 titles = [true + '\n' + pred for true, pred in zip(true_labels, pred_labels)]
+print("titles.length:{}; title0:{}; type:{}".format(len(titles),titles[0], type(titles)))
 show_fashion_mnist(X[0:9], titles[0:9])
