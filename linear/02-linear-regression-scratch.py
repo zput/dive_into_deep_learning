@@ -1,5 +1,4 @@
 import random
-
 import torch
 
 ## with torch.no_grad() 则主要是用于停止autograd模块的工作，
@@ -21,15 +20,9 @@ import torch
 def create_data(w, b, nums_example):
     X = torch.normal(0, 1, (nums_example, len(w)))
     y = torch.matmul(X, w) + b
-    print("y_shape:", y.shape)
+    # print("y_shape:", y.shape)
     y += torch.normal(0, 0.01, y.shape)  # 加入噪声
     return X, y.reshape(-1, 1)  # y从行向量转为列向量
-
-
-true_w = torch.tensor([2, -3.4])
-true_b = 4.2
-features, labels = create_data(true_w, true_b, 1000)
-
 
 ## 读数据集
 def read_data(batch_size, features, lables):
@@ -40,27 +33,14 @@ def read_data(batch_size, features, lables):
         index_tensor = torch.tensor(indices[i: min(i + batch_size, nums_example)])
         yield features[index_tensor], lables[index_tensor]  # 通过索引访问向量
 
-
-batch_size = 10
-for X, y in read_data(batch_size, features, labels):
-    print("X:", X, "\ny", y)
-    break;
-
-##初始化参数
-w = torch.normal(0, 0.01, size=(2, 1), requires_grad=True)
-b = torch.zeros(1, requires_grad=True)
-
-
 # 定义模型
 def net(X, w, b):
     return torch.matmul(X, w) + b
-
 
 # 定义损失函数
 def loss(y_hat, y):
     # print("y_hat_shape:",y_hat.shape,"\ny_shape:",y.shape)
     return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2  # 这里为什么要加 y_hat_shape: torch.Size([10, 1])  y_shape: torch.Size([10])
-
 
 # 定义优化算法
 def sgd(params, batch_size, lr):
@@ -70,7 +50,32 @@ def sgd(params, batch_size, lr):
             param.grad.zero_()  ## 导数如果丢失了，会报错‘NoneType’ object has no attribute ‘zero_’
 
 
-# 训练模型
+
+######################################################################################
+# > 获取并读取数据
+# > 定义模型
+# > 损失函数并使用优化算法训练模型
+#####################################################################################
+
+# >>>>>>>>>创造训练数据
+true_w = torch.tensor([2, -3.4])
+true_b = 4.2
+features, labels = create_data(true_w, true_b, 1000)
+print("特征.type:[{}]\n特征.len:[{}]\n特征小部分展示:[{}]".format(features.shape, len(features), features[0:10]))
+print("标签.type:[{}]\n标签.len:[{}]\n标签小部分展示:[{}]".format(labels.shape, len(labels), labels[0:10]))
+
+batch_size = 10
+for X, y in read_data(batch_size, features, labels):
+    #print("X:", X, "\ny", y)
+    break
+print("=================================================")
+
+
+# >>>>>>>>>初始化参数
+w = torch.normal(0, 0.01, size=(2, 1), requires_grad=True)
+b = torch.zeros(1, requires_grad=True)
+
+# >>>>>>>>>训练模型
 lr = 0.03
 num_epochs = 3
 
@@ -84,5 +89,8 @@ for epoch in range(0, num_epochs):
     with torch.no_grad():
         train_l = loss(net(features, w, b), labels)
         print("w {0} \nb {1} \nloss {2:f}".format(w, b, float(train_l.mean())))
+        print("=================真实的w {0} 真实的b {1} ================\n\n".format(true_w, true_b))
 
+
+# >>>>>>>>>训练结果
 print("w误差 ", true_w - w, "\nb误差 ", true_b - b)

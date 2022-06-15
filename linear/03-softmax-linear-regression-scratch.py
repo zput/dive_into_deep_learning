@@ -17,7 +17,7 @@ def get_fashion_mnist_labels(labels):  # @save
 def show_fashion_mnist(images, labels):
     d2l.use_svg_display()
     # 这里的_表示我们忽略（不使用）的变量
-    _, figs = plt.subplots(1, len(images), figsize=(12, 12))
+    _, figs = plt.subplots(1, len(images), figsize=(24, 24))
     for f, img, lbl in zip(figs, images, labels):
         f.imshow(img.view((28, 28)).numpy())
         f.set_title(lbl)
@@ -84,6 +84,15 @@ def train_linear(net, train_iter, test_iter, loss, num_epochs, batch_size,
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f'
               % (epoch + 1, train_l_sum / n, train_acc_sum / n, test_acc))
 
+
+def show_some_data(train_iter, num:int):
+    #展示部分数据
+    train_data, train_targets = iter(train_iter).next()
+    show_fashion_mnist(train_data[0:num], get_fashion_mnist_labels(train_targets[0:num]))
+    # print(train_data, train_targets, len(train_data), len(train_targets))
+    # show_fashion_mnist(train_data[:], get_fashion_mnist_labels(train_targets[:]))
+
+
 ######################################################################################
 # > 获取并读取数据
 # > 定义模型
@@ -91,40 +100,37 @@ def train_linear(net, train_iter, test_iter, loss, num_epochs, batch_size,
 #####################################################################################
 
 
-## 读取小批量数据
+# >>>>>读取小批量数据
 batch_size = 256   # batch_size = 2
 train_iter, test_iter = common.load_fashion_mnist(batch_size)
 print(len(train_iter))  # train_iter的长度是235；说明数据被分成了234组大小为256的数据加上最后一组大小不足256的数据
 print('数据读取完成!!!')
 
-#展示部分训练数据
-train_data, train_targets = iter(train_iter).next()
-show_fashion_mnist(train_data[0:10], get_fashion_mnist_labels(train_targets[0:10]))
-# print(train_data, train_targets, len(train_data), len(train_targets))
-# show_fashion_mnist(train_data[:], get_fashion_mnist_labels(train_targets[:]))
+# >>>>>展示部分训练数据
+show_object_num = 15
+show_some_data(train_iter, num=show_object_num)
 
-# 初始化模型参数
-num_inputs = 784
+
+# >>>>>W, b为全局变量
+num_inputs = 784 # 初始化模型参数
 num_outputs = 10
-
-## W, b为全局变量
 W = torch.normal(0, 0.01, size=(num_inputs, num_outputs), requires_grad=True)
-b = torch.zeros(num_outputs, requires_grad=True)
-# print("w.length:{}".format(len(W)))
+b = torch.zeros(num_outputs, requires_grad=True)                 # print("w.length:{}".format(len(W)))
 
-# 定义损失函数
+
+# >>>>>定义损失函数
 y_hat = torch.tensor([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
 y = torch.LongTensor([0, 2])
 y_hat.gather(1, y.view(-1, 1))
 
-# 训练模型
+# >>>>>训练模型/测试模型
 num_epochs, lr = 10, 0.1 # 设置迭代次数, 学习率.
 train_linear(net, train_iter, test_iter, cross_entropy, num_epochs, batch_size, [W, b], lr)
 
-# 使用测试集来跑一下我们生成的预测模型.
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>展示测试结果<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 X, y = iter(test_iter).next()
 true_labels = get_fashion_mnist_labels(y.numpy())
 pred_labels = get_fashion_mnist_labels(net(X).argmax(dim=1).numpy())
 titles = [true + '\n' + pred for true, pred in zip(true_labels, pred_labels)]
-print("titles.length:{}; title0:{}; type:{}".format(len(titles),titles[0], type(titles)))
-show_fashion_mnist(X[0:9], titles[0:9])
+# print("titles.length:{}; title0:{}; type:{}".format(len(titles),titles[0], type(titles)))
+show_fashion_mnist(X[0:show_object_num], titles[0:show_object_num])
