@@ -11,10 +11,14 @@ from d2lutil import common
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 ## 读取小批量数据
-batch_size = 256
+# batch_size = 256
+batch_size = 2
 train_iter, test_iter = common.load_fashion_mnist(batch_size)
 print(len(train_iter))  # train_iter的长度是235；说明数据被分成了234组大小为256的数据加上最后一组大小不足256的数据
 print('11111111')
+
+
+
 
 
 ## 展示部分数据
@@ -38,7 +42,9 @@ def show_fashion_mnist(images, labels):
 
 #展示部分训练数据
 train_data, train_targets = iter(train_iter).next()
-show_fashion_mnist(train_data[0:10], train_targets[0:10])
+# show_fashion_mnist(train_data[0:10], get_fashion_mnist_labels(train_targets[0:10]))
+print(train_data, train_targets, len(train_data), len(train_targets))
+show_fashion_mnist(train_data[:], get_fashion_mnist_labels(train_targets[:]))
 
 # 初始化模型参数
 num_inputs = 784
@@ -46,6 +52,8 @@ num_outputs = 10
 
 W = torch.normal(0, 0.01, size=(num_inputs, num_outputs), requires_grad=True)
 b = torch.zeros(num_outputs, requires_grad=True)
+
+print("w.length:{}".format(len(W)))
 
 
 # 定义模型
@@ -56,7 +64,11 @@ def softmax(X):
 
 
 def net(X):
-    return softmax(torch.matmul(X.reshape(-1, num_inputs), W) + b)
+    # kprint("===>X.lenght:{}".format(len(X)))
+    # kprint(X)
+    # kprint("===>", X.reshape(-1, num_inputs))
+    # kprint("===>", len(torch.mm(X.reshape(-1, num_inputs), W)))
+    return softmax(torch.matmul(X.reshape(-1, num_inputs), W) + b) # 触发广播
 
 
 # 定义损失函数
@@ -66,6 +78,7 @@ y_hat.gather(1, y.view(-1, 1))
 
 
 def cross_entropy(y_hat, y):
+    print("=================> \n y_hat:{}; \n y:{} \n =======================< \n".format(y_hat, y))
     return - torch.log(y_hat.gather(1, y.view(-1, 1)))
 
 

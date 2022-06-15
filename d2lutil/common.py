@@ -64,9 +64,14 @@ def load_fashion_mnist(batch_size):
                                                     download=False)
     mnist_test = torchvision.datasets.FashionMNIST(root=path_head + "/", train=False, transform=transforms.ToTensor(),
                                                    download=False)
-
+    num_workers = 0
+    import sys
+    if sys.platform.startswith('win'):
+        num_workers = 0  # 0表示不用额外的进程来加速读取数据
+    else:
+        num_workers = 0
     # 这里有个坑 如果线程数num_workers设置大于0会报错  An attempt has been made to start a new process before the current process has finished its bootstrapping
-    train_iter = data.DataLoader(mnist_train, batch_size=batch_size, shuffle=True, num_workers=0)
-    test_iter = data.DataLoader(mnist_test, batch_size=batch_size, shuffle=False, num_workers=0)
+    train_iter = data.DataLoader(mnist_train, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    test_iter = data.DataLoader(mnist_test, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     return (train_iter, test_iter)
