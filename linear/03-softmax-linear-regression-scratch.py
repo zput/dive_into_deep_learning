@@ -3,25 +3,10 @@ import os
 import matplotlib.pyplot as plt
 import torch
 from d2l import torch as d2l
-
-
 from d2lutil import common
-
-
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-## 读取小批量数据
-batch_size = 256
-# batch_size = 2
-train_iter, test_iter = common.load_fashion_mnist(batch_size)
-print(len(train_iter))  # train_iter的长度是235；说明数据被分成了234组大小为256的数据加上最后一组大小不足256的数据
-print('11111111')
 
-
-
-
-
-## 展示部分数据
 def get_fashion_mnist_labels(labels):  # @save
     """返回Fashion-MNIST数据集的文本标签。"""
     text_labels = ['t-shirt', 'trouser', 'pullover', 'dress', 'coat',
@@ -40,23 +25,6 @@ def show_fashion_mnist(images, labels):
         f.axes.get_yaxis().set_visible(False)
     plt.show()
 
-#展示部分训练数据
-train_data, train_targets = iter(train_iter).next()
-show_fashion_mnist(train_data[0:10], get_fashion_mnist_labels(train_targets[0:10]))
-# print(train_data, train_targets, len(train_data), len(train_targets))
-# show_fashion_mnist(train_data[:], get_fashion_mnist_labels(train_targets[:]))
-
-# 初始化模型参数
-num_inputs = 784
-num_outputs = 10
-
-## W, b为全局变量
-W = torch.normal(0, 0.01, size=(num_inputs, num_outputs), requires_grad=True)
-b = torch.zeros(num_outputs, requires_grad=True)
-
-print("w.length:{}".format(len(W)))
-
-
 # 定义模型
 def softmax(X):
     X_exp = X.exp()
@@ -70,13 +38,6 @@ def net(X):
     # kprint("===>", X.reshape(-1, num_inputs))
     # kprint("===>", len(torch.mm(X.reshape(-1, num_inputs), W)))
     return softmax(torch.matmul(X.reshape(-1, num_inputs), W) + b) # 触发广播
-
-
-# 定义损失函数
-y_hat = torch.tensor([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
-y = torch.LongTensor([0, 2])
-y_hat.gather(1, y.view(-1, 1))
-
 
 def cross_entropy(y_hat, y):
     # print("=================> \n y_hat:{}; \n y:{} \n =======================< \n".format(y_hat, y))
@@ -96,13 +57,8 @@ def evaluate_accuracy(data_iter, net):
         n += y.shape[0]
     return acc_sum / n
 
-
-num_epochs, lr = 10, 0.1
-
-
-# 本函数已保存在d2lzh包中方便以后使用
-def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
-              params=None, lr=None, optimizer=None):
+def train_linear(net, train_iter, test_iter, loss, num_epochs, batch_size,
+                 params=None, lr=None, optimizer=None):
     for epoch in range(num_epochs):
         train_l_sum, train_acc_sum, n = 0.0, 0.0, 0
         for X, y in train_iter:
@@ -128,12 +84,44 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, batch_size,
         print('epoch %d, loss %.4f, train acc %.3f, test acc %.3f'
               % (epoch + 1, train_l_sum / n, train_acc_sum / n, test_acc))
 
+######################################################################################
+# > 获取并读取数据
+# > 定义模型
+# > 损失函数并使用优化算法训练模型
+#####################################################################################
+
+
+## 读取小批量数据
+batch_size = 256   # batch_size = 2
+train_iter, test_iter = common.load_fashion_mnist(batch_size)
+print(len(train_iter))  # train_iter的长度是235；说明数据被分成了234组大小为256的数据加上最后一组大小不足256的数据
+print('数据读取完成!!!')
+
+#展示部分训练数据
+train_data, train_targets = iter(train_iter).next()
+show_fashion_mnist(train_data[0:10], get_fashion_mnist_labels(train_targets[0:10]))
+# print(train_data, train_targets, len(train_data), len(train_targets))
+# show_fashion_mnist(train_data[:], get_fashion_mnist_labels(train_targets[:]))
+
+# 初始化模型参数
+num_inputs = 784
+num_outputs = 10
+
+## W, b为全局变量
+W = torch.normal(0, 0.01, size=(num_inputs, num_outputs), requires_grad=True)
+b = torch.zeros(num_outputs, requires_grad=True)
+# print("w.length:{}".format(len(W)))
+
+# 定义损失函数
+y_hat = torch.tensor([[0.1, 0.3, 0.6], [0.3, 0.2, 0.5]])
+y = torch.LongTensor([0, 2])
+y_hat.gather(1, y.view(-1, 1))
 
 # 训练模型
-train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs, batch_size, [W, b], lr)
+num_epochs, lr = 10, 0.1 # 设置迭代次数, 学习率.
+train_linear(net, train_iter, test_iter, cross_entropy, num_epochs, batch_size, [W, b], lr)
 
-# 测试一下
-# 预测模型
+# 使用测试集来跑一下我们生成的预测模型.
 X, y = iter(test_iter).next()
 true_labels = get_fashion_mnist_labels(y.numpy())
 pred_labels = get_fashion_mnist_labels(net(X).argmax(dim=1).numpy())
