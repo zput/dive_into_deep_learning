@@ -1,4 +1,3 @@
-import matplotlib
 import torch
 from torch import nn
 from utils import torch as torch_common
