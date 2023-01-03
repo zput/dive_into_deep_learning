@@ -87,7 +87,7 @@ def train_linear(net, train_iter, test_iter, loss, num_epochs, batch_size,
 
 def show_some_data(train_iter, num:int):
     #展示部分数据
-    train_data, train_targets = iter(train_iter).next()
+    train_data, train_targets = iter(train_iter).__next__()
     show_fashion_mnist(train_data[0:num], get_fashion_mnist_labels(train_targets[0:num]))
     # print(train_data, train_targets, len(train_data), len(train_targets))
     # show_fashion_mnist(train_data[:], get_fashion_mnist_labels(train_targets[:]))
@@ -128,7 +128,7 @@ num_epochs, lr = 10, 0.1 # 设置迭代次数, 学习率.
 train_linear(net, train_iter, test_iter, cross_entropy, num_epochs, batch_size, [W, b], lr)
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>展示测试结果<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-X, y = iter(test_iter).next()
+X, y = iter(test_iter).__next__()
 true_labels = get_fashion_mnist_labels(y.numpy())
 pred_labels = get_fashion_mnist_labels(net(X).argmax(dim=1).numpy())
 titles = [true + '\n' + pred for true, pred in zip(true_labels, pred_labels)]
